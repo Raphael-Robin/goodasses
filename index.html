@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoodAsses — Sneakers</title>
+<style>
+  :root{
+    --bg:#f2efe9;
+    --surface:#ffffff;
+    --ink:#141414;
+    --ink-soft:#5a5a52;
+    --accent:#ff4d1c;
+    --accent-ink:#ffffff;
+    --line:#141414;
+    --shadow:0 10px 30px rgba(20,20,20,.10);
+    --card-img-bg:#e7e2d8;
+  }
+  [data-theme="dark"]{
+    --bg:#101216;
+    --surface:#181b21;
+    --ink:#f4f2ec;
+    --ink-soft:#9aa0ab;
+    --accent:#ff4d1c;
+    --accent-ink:#ffffff;
+    --line:#f4f2ec;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --card-img-bg:#22262e;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    transition:background .3s ease,color .3s ease;
+  }
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;
+    background:var(--bg);
+    border-bottom:2px solid var(--line);
+    transition:background .3s ease;
+  }
+  .logo{
+    font-weight:900;font-size:26px;letter-spacing:-.5px;text-transform:uppercase;
+    cursor:pointer;user-select:none;
+  }
+  .logo span{color:var(--accent)}
+  .theme-toggle{
+    display:flex;align-items:center;gap:8px;
+    background:none;border:2px solid var(--line);border-radius:999px;
+    padding:8px 16px;color:var(--ink);font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:1px;
+    transition:all .2s ease;
+  }
+  .theme-toggle:hover{background:var(--ink);color:var(--bg)}
+
+  /* ---------- Bandeau défilant ---------- */
+  .marquee{
+    overflow:hidden;white-space:nowrap;
+    background:var(--accent);color:var(--accent-ink);
+    border-bottom:2px solid var(--line);
+    padding:8px 0;font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:2px;
+  }
+  .marquee-inner{display:inline-block;animation:scroll 22s linear infinite}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.marquee-inner{animation:none}}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:64px 32px 40px;max-width:1400px;margin:0 auto}
+  .hero h1{
+    font-size:clamp(42px,7vw,96px);font-weight:900;line-height:.95;
+    text-transform:uppercase;letter-spacing:-2px;
+  }
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{margin-top:16px;max-width:520px;color:var(--ink-soft);font-size:17px;line-height:1.5}
+
+  /* ---------- Grille produits ---------- */
+  .grid{
+    max-width:1400px;margin:24px auto 96px;padding:0 32px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  }
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--surface);border:2px solid var(--line);border-radius:16px;
+    overflow:hidden;position:relative;
+    transition:transform .25s ease,box-shadow .25s ease,background .3s ease;
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+  .card-img{
+    position:relative;background:var(--card-img-bg);
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+    transition:background .3s ease;
+  }
+  .card-img svg{width:82%;height:auto;transition:transform .3s ease}
+  .card:hover .card-img svg{transform:rotate(-8deg) scale(1.06)}
+
+  .card-overlay{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    background:rgba(20,20,20,.55);backdrop-filter:blur(2px);
+    opacity:0;transition:opacity .25s ease;
+  }
+  .card:hover .card-overlay,
+  .card:focus-within .card-overlay{opacity:1}
+  .card-overlay button{
+    width:60%;padding:12px 0;border-radius:999px;border:2px solid #fff;
+    font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;
+    transition:transform .15s ease;
+  }
+  .card-overlay button:hover{transform:scale(1.05)}
+  .btn-order{background:var(--accent);color:#fff;border-color:var(--accent)!important}
+  .btn-details{background:#fff;color:#141414}
+
+  .card-info{
+    padding:16px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+    border-top:2px solid var(--line);
+  }
+  .card-name{font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.5px}
+  .card-price{font-weight:900;color:var(--accent);font-size:16px;white-space:nowrap}
+
+  /* ---------- Pages Détails / Commande ---------- */
+  .page{max-width:1100px;margin:0 auto;padding:48px 32px 120px;display:none}
+  .page.active{display:block}
+  #view-catalog{display:block}
+  #view-catalog.hidden{display:none}
+
+  .back{
+    background:none;border:none;color:var(--ink);font-weight:700;font-size:14px;
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:32px;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .back:hover{color:var(--accent)}
+
+  .detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+  @media(max-width:820px){.detail-layout{grid-template-columns:1fr}}
+  .detail-img{
+    background:var(--card-img-bg);border:2px solid var(--line);border-radius:20px;
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+  }
+  .detail-img svg{width:85%}
+  .detail-info h2{font-size:clamp(32px,4vw,52px);font-weight:900;text-transform:uppercase;letter-spacing:-1px;line-height:1}
+  .detail-price{font-size:28px;font-weight:900;color:var(--accent);margin:12px 0 24px}
+  .detail-desc{color:var(--ink-soft);line-height:1.65;font-size:16px;margin-bottom:28px}
+  .specs{list-style:none;margin-bottom:32px}
+  .specs li{
+    display:flex;justify-content:space-between;padding:12px 0;
+    border-bottom:1px solid var(--ink-soft);font-size:14px;
+  }
+  .specs li span:first-child{text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:700}
+  .specs li span:last-child{font-weight:700}
+
+  .cta{
+    display:inline-block;width:100%;padding:16px 0;border-radius:999px;
+    background:var(--accent);color:#fff;border:2px solid var(--accent);
+    font-weight:900;font-size:16px;text-transform:uppercase;letter-spacing:1px;
+    transition:transform .15s ease;text-align:center;
+  }
+  .cta:hover{transform:scale(1.02)}
+
+  /* Commande */
+  .order-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
+  @media(max-width:820px){.order-layout{grid-template-columns:1fr}}
+  .order-img{
+    background:var(--card-img-bg);border:2px solid var(--line);border-radius:20px;
+    aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+  }
+  .order-img svg{width:80%}
+  .order-info h2{font-size:clamp(28px,3.5vw,42px);font-weight:900;text-transform:uppercase;letter-spacing:-1px}
+  .size-label{
+    margin:28px 0 14px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;font-size:13px;
+  }
+  .sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:32px}
+  .size{
+    padding:14px 0;border:2px solid var(--line);border-radius:12px;background:var(--surface);
+    color:var(--ink);font-weight:800;font-size:15px;transition:all .15s ease;
+  }
+  .size:hover{border-color:var(--accent);color:var(--accent)}
+  .size.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+  .size-hint{color:var(--ink-soft);font-size:13px;margin:-20px 0 24px;min-height:18px}
+
+  .confirm{
+    display:none;margin-top:24px;padding:20px;border:2px solid var(--accent);border-radius:16px;
+    background:var(--surface);text-align:center;
+  }
+  .confirm.show{display:block;animation:pop .3s ease}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .confirm strong{display:block;font-size:20px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;color:var(--accent)}
+  .confirm p{color:var(--ink-soft);font-size:14px}
+
+  footer{
+    border-top:2px solid var(--line);padding:32px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-size:13px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;
+  }
+  button:focus-visible,.size:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="showCatalog()">Good<span>Asses</span></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Mode nuit</button>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-inner" id="marquee"></div>
+</div>
+
+<!-- ================= CATALOGUE ================= -->
+<main id="view-catalog">
+  <section class="hero">
+    <h1>Marche<br>comme tu le <em>sens.</em></h1>
+    <p>La collection GoodAsses — des sneakers dessinées pour la rue, assemblées pour durer. Passe la souris sur un modèle pour commander ou voir les détails.</p>
+  </section>
+  <section class="grid" id="grid"></section>
+</main>
+
+<!-- ================= DÉTAILS ================= -->
+<section class="page" id="view-details">
+  <button class="back" onclick="showCatalog()">← Retour à la collection</button>
+  <div class="detail-layout">
+    <div class="detail-img" id="detailImg"></div>
+    <div class="detail-info">
+      <h2 id="detailName"></h2>
+      <div class="detail-price" id="detailPrice"></div>
+      <p class="detail-desc" id="detailDesc"></p>
+      <ul class="specs" id="detailSpecs"></ul>
+      <button class="cta" id="detailOrderBtn">Commander</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMMANDE ================= -->
+<section class="page" id="view-order">
+  <button class="back" onclick="showCatalog()">← Retour à la collection</button>
+  <div class="order-layout">
+    <div class="order-img" id="orderImg"></div>
+    <div class="order-info">
+      <h2 id="orderName"></h2>
+      <div class="detail-price" id="orderPrice"></div>
+      <div class="size-label">Choisis ta pointure (EU)</div>
+      <div class="sizes" id="sizes"></div>
+      <div class="size-hint" id="sizeHint"></div>
+      <button class="cta" onclick="validateOrder()">Valider la commande</button>
+      <div class="confirm" id="confirm">
+        <strong>Commande validée ✔</strong>
+        <p id="confirmText"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>© 2026 GoodAsses — Prototype</div>
+  <div>Fait pour marcher, pas pour courir après la mode</div>
+</footer>
+
+<script>
+/* ---------- Données produits ---------- */
+/* Chaque chaussure est un SVG généré avec sa propre palette */
+function shoeSVG(c){
+  return `
+  <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="sneaker">
+    <!-- semelle -->
+    <path d="M18 158 Q18 176 44 176 L262 176 Q286 176 284 158 L280 148 L22 148 Z" fill="${c.sole}" stroke="#141414" stroke-width="4"/>
+    <!-- corps -->
+    <path d="M22 148 L30 96 Q34 74 58 70 L110 62 Q150 58 178 82 L232 118 Q272 138 280 148 Z" fill="${c.body}" stroke="#141414" stroke-width="4"/>
+    <!-- pointe -->
+    <path d="M232 118 Q272 138 280 148 L212 148 Q214 128 232 118 Z" fill="${c.toe}" stroke="#141414" stroke-width="4"/>
+    <!-- bande latérale (le "swoop" GoodAsses) -->
+    <path d="M36 132 Q120 96 208 132 L204 148 L34 148 Z" fill="${c.stripe}" stroke="#141414" stroke-width="4"/>
+    <!-- languette -->
+    <path d="M58 70 Q54 48 74 44 Q96 40 100 60 L110 62 Q80 68 58 70 Z" fill="${c.tongue}" stroke="#141414" stroke-width="4"/>
+    <!-- lacets -->
+    <path d="M96 74 L150 88 M92 88 L146 102 M88 102 L142 116" stroke="#141414" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <!-- oeillets -->
+    <circle cx="94" cy="73" r="4" fill="#141414"/>
+    <circle cx="90" cy="87" r="4" fill="#141414"/>
+    <circle cx="86" cy="101" r="4" fill="#141414"/>
+    <!-- crampons -->
+    <path d="M40 176 v6 M70 176 v6 M100 176 v6 M130 176 v6 M160 176 v6 M190 176 v6 M220 176 v6 M250 176 v6" stroke="#141414" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
+}
+
+const products = [
+  {id:1, name:"Bitume 01", price:69.99, colors:{body:"#f4f2ec", toe:"#ff4d1c", stripe:"#ff4d1c", tongue:"#f4f2ec", sole:"#ffffff"},
+   desc:"Le modèle fondateur. Une tige en toile enduite, une semelle amortie au talon et la bande signature orange braise. Pensée pour avaler les kilomètres de trottoir sans broncher.",
+   specs:{Tige:"Toile enduite", Semelle:"Gomme recyclée 40%", Poids:"310 g", Origine:"Portugal"}},
+  {id:2, name:"Goudron GT", price:149, colors:{body:"#141414", toe:"#f4f2ec", stripe:"#ffd23f", tongue:"#141414", sole:"#f4f2ec"},
+   desc:"Noir mat, éclair jaune. La Goudron GT emprunte son profil aux chaussures de piste des années 70 et le durcit avec un pare-pierre renforcé à la pointe.",
+   specs:{Tige:"Nubuck + mesh", Semelle:"EVA double densité", Poids:"295 g", Origine:"Portugal"}},
+  {id:3, name:"Canicule", price:179.99, colors:{body:"#ffd23f", toe:"#ff4d1c", stripe:"#f4f2ec", tongue:"#ffd23f", sole:"#ffffff"},
+   desc:"Jaune soleil, pointe braise. Une maille ultra-aérée pour les mois où le bitume fond. Séchage rapide, doublure sans couture.",
+   specs:{Tige:"Maille aérée", Semelle:"Gomme claire", Poids:"260 g", Origine:"Espagne"}},
+  {id:4, name:"Six-Seven", price:67.67, colors:{body:"#3d6ef7", toe:"#141414", stripe:"#f4f2ec", tongue:"#3d6ef7", sole:"#f4f2ec"},
+   desc:"Bleu orage, membrane déperlante. La deuxième génération de notre modèle pluie gagne une semelle crantée et des lacets cirés qui ne se dénouent pas.",
+   specs:{Tige:"Toile déperlante", Semelle:"Crantée tout-temps", Poids:"330 g", Origine:"Portugal"}},
+  {id:5, name:"Menthe Rly", price:119, colors:{body:"#9fe8c4", toe:"#141414", stripe:"#141414", tongue:"#9fe8c4", sole:"#ffffff"},
+   desc:"Vert menthe glacée sur contrastes noirs. Silhouette basse et fine, la plus légère du catalogue. Celle qu'on enfile sans réfléchir.",
+   specs:{Tige:"Canvas léger", Semelle:"Vulcanisée", Poids:"240 g", Origine:"Espagne"}},
+  {id:6, name:"Brique Haute", price:169, colors:{body:"#c1442e", toe:"#f4f2ec", stripe:"#f4f2ec", tongue:"#c1442e", sole:"#f4f2ec"},
+   desc:"Rouge brique, allure de chantier. Renforts cousus main, œillets métal, semelle crantée large : la plus robuste de la gamme.",
+   specs:{Tige:"Cuir pleine fleur", Semelle:"Crantée large", Poids:"380 g", Origine:"Portugal"}},
+  {id:7, name:"Nuit Blanche", price:144, colors:{body:"#f4f2ec", toe:"#141414", stripe:"#3d6ef7", tongue:"#f4f2ec", sole:"#141414"},
+   desc:"Blanc cassé sur semelle noire, bande bleu nuit. Le modèle passe-partout qui tient aussi bien avec un jean qu'un pantalon de costume.",
+   specs:{Tige:"Cuir lisse", Semelle:"Gomme noire", Poids:"300 g", Origine:"Portugal"}},
+  {id:8, name:"Super Speed", price:194.5, colors:{body:"#141414", toe:"#ff4d1c", stripe:"#ff4d1c", tongue:"#141414", sole:"#141414"},
+   desc:"Tout noir, éruptions orange. Édition limitée numérotée : chaque paire porte son numéro gravé sur l'œillet supérieur.",
+   specs:{Tige:"Suède + cuir", Semelle:"Gomme teintée", Poids:"320 g", Origine:"Italie"}},
+];
+
+/* ---------- Rendu catalogue ---------- */
+const grid = document.getElementById('grid');
+grid.innerHTML = products.map(p => `
+  <article class="card">
+    <div class="card-img">
+      ${shoeSVG(p.colors)}
+      <div class="card-overlay">
+        <button class="btn-order" onclick="showOrder(${p.id})">Commander</button>
+        <button class="btn-details" onclick="showDetails(${p.id})">Détails</button>
+      </div>
+    </div>
+    <div class="card-info">
+      <span class="card-name">${p.name}</span>
+      <span class="card-price">${p.price} €</span>
+    </div>
+  </article>
+`).join('');
+
+/* ---------- Bandeau ---------- */
+const phrase = "GoodAsses — Livraison offerte dès 100 € — Retours 30 jours — ";
+document.getElementById('marquee').textContent = phrase.repeat(8);
+
+/* ---------- Navigation ---------- */
+const views = {
+  catalog: document.getElementById('view-catalog'),
+  details: document.getElementById('view-details'),
+  order: document.getElementById('view-order'),
+};
+function switchView(name){
+  views.catalog.classList.toggle('hidden', name !== 'catalog');
+  views.details.classList.toggle('active', name === 'details');
+  views.order.classList.toggle('active', name === 'order');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+function showCatalog(){ switchView('catalog'); }
+
+function showDetails(id){
+  const p = products.find(x => x.id === id);
+  document.getElementById('detailImg').innerHTML = shoeSVG(p.colors);
+  document.getElementById('detailName').textContent = p.name;
+  document.getElementById('detailPrice').textContent = p.price + ' €';
+  document.getElementById('detailDesc').textContent = p.desc;
+  document.getElementById('detailSpecs').innerHTML =
+    Object.entries(p.specs).map(([k,v]) => `<li><span>${k}</span><span>${v}</span></li>`).join('');
+  document.getElementById('detailOrderBtn').onclick = () => showOrder(p.id);
+  switchView('details');
+}
+
+/* ---------- Commande ---------- */
+let currentProduct = null;
+let selectedSize = null;
+const SIZES = [38,39,40,41,42,43,44,45,46];
+
+function showOrder(id){
+  currentProduct = products.find(x => x.id === id);
+  selectedSize = null;
+  document.getElementById('orderImg').innerHTML = shoeSVG(currentProduct.colors);
+  document.getElementById('orderName').textContent = currentProduct.name;
+  document.getElementById('orderPrice').textContent = currentProduct.price + ' €';
+  document.getElementById('sizeHint').textContent = '';
+  document.getElementById('confirm').classList.remove('show');
+  document.getElementById('sizes').innerHTML = SIZES.map(s =>
+    `<button class="size" onclick="selectSize(this, ${s})">${s}</button>`).join('');
+  switchView('order');
+}
+
+function selectSize(el, size){
+  selectedSize = size;
+  document.querySelectorAll('.size').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('sizeHint').textContent = '';
+  document.getElementById('confirm').classList.remove('show');
+}
+
+function validateOrder(){
+  if(!selectedSize){
+    document.getElementById('sizeHint').textContent = 'Choisis d\'abord une pointure.';
+    return;
+  }
+  document.getElementById('confirmText').textContent =
+    `${currentProduct.name} — pointure ${selectedSize} — ${currentProduct.price} €. (Prototype : la commande ne va pas plus loin.)`;
+  document.getElementById('confirm').classList.add('show');
+}
+
+/* ---------- Thème jour / nuit ---------- */
+function toggleTheme(){
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = dark ? '🌙 Mode nuit' : '☀️ Mode jour';
+}
+</script>
+</body>
+</html>
